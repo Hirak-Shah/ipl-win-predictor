@@ -3,11 +3,15 @@ import pickle
 import pandas as pd
 
 # Load models
-with open('random_forest_model.pkl', 'rb') as f:
-    model = pickle.load(f)
+try:
+    with open('random_forest_model.pkl', 'rb') as f:
+        model = pickle.load(f)
+except Exception as e:
+    st.error(f"Error loading Random Forest model: {e}")
+    model = None
 
-with open('neural_network_model.pkl', 'rb') as f:
-    neural_model = pickle.load(f)
+# Neural network model disabled for deployment
+neural_model = None
 
 # Load player data
 df = pd.read_excel('ui_player_data.xlsx')
@@ -44,13 +48,16 @@ overs = st.number_input("Overs Completed", min_value=0.0, max_value=20.0, value=
 target = st.number_input("Target", min_value=0, value=0)
 
 if st.button("Predict"):
-    # Prepare input
-    inputs = [[batting_team[batting], bowling_team[bowling], city[city_name], 
-               runs, wickets, overs, target, 0, 0, 0]]  # Add remaining features
-    
-    prediction = model.predict(inputs)[0]
-    
-    if prediction == 0:
-        st.error(f"{batting} will likely Lose")
+    if model is None:
+        st.error("Model not loaded. Cannot make prediction.")
     else:
-        st.success(f"{batting} will likely Win")
+        # Prepare input
+        inputs = [[batting_team[batting], bowling_team[bowling], city[city_name], 
+                   runs, wickets, overs, target, 0, 0, 0]]  # Add remaining features
+        
+        prediction = model.predict(inputs)[0]
+        
+        if prediction == 0:
+            st.error(f"{batting} will likely Lose")
+        else:
+            st.success(f"{batting} will likely Win")
