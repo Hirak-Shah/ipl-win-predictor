@@ -42,6 +42,13 @@ city = {'Hyderabad': 0, 'Pune': 1, 'Rajkot': 2, 'Indore': 3, 'Bengaluru': 4, 'Mu
 
 st.title("IPL Win Probability Predictor")
 
+# Show model info
+if model is not None:
+    try:
+        st.sidebar.info(f"Model expects {model.n_features_in_} features")
+    except:
+        pass
+
 # Input fields
 batting = st.selectbox("Batting Team", list(batting_team.keys()))
 bowling = st.selectbox("Bowling Team", list(bowling_team.keys()))
@@ -55,13 +62,18 @@ if st.button("Predict"):
     if model is None:
         st.error("Model not loaded. Cannot make prediction.")
     else:
-        # Prepare input
-        inputs = [[batting_team[batting], bowling_team[bowling], city[city_name], 
-                   runs, wickets, overs, target, 0, 0, 0]]  # Add remaining features
-        
-        prediction = model.predict(inputs)[0]
-        
-        if prediction == 0:
-            st.error(f"{batting} will likely Lose")
-        else:
-            st.success(f"{batting} will likely Win")
+        try:
+            # Prepare input - adjust based on your model's expected features
+            import numpy as np
+            inputs = np.array([[batting_team[batting], bowling_team[bowling], city[city_name], 
+                       runs, wickets, overs, target, 0, 0, 0]], dtype=float)
+            
+            prediction = model.predict(inputs)[0]
+            
+            if prediction == 0:
+                st.error(f"🔴 {batting} will likely Lose")
+            else:
+                st.success(f"🟢 {batting} will likely Win")
+        except Exception as e:
+            st.error(f"Prediction error: {str(e)}")
+            st.info("The model expects specific input features. Please check the model training code.")
