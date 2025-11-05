@@ -14,9 +14,13 @@ except Exception as e:
 neural_model = None
 
 # Load player data
-df = pd.read_excel('ui_player_data.xlsx')
-player_data_dict = {row['Player Name']: [row['Total Not Outs'], row['High Score'], row['Strike Rate']] 
-                    for _, row in df.iterrows()}
+try:
+    df = pd.read_excel('ui_player_data.xlsx')
+    player_data_dict = {row['Player Name']: [row['Total Not Outs'], row['Highest Score'], row['Strike Rate']] 
+                        for _, row in df.iterrows()}
+except Exception as e:
+    st.warning(f"Could not load player data: {e}")
+    player_data_dict = {}
 
 # Team and city mappings
 batting_team = {'Royal Challengers Bangalore': 0, 'Rising Pune Supergiant': 1, 'Kolkata Knight Riders': 2, 
